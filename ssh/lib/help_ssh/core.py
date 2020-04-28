@@ -5,17 +5,21 @@ import paramiko
 from paramiko import SSHClient
 from scp import SCPClient
 import sys
+import os
 
 
 class AdminSshClient(object):
     def __init__(self, hostip, username,
                  pkey_fpath=None, access_port=22,
+                 password=None,
                  confirm_secure_host=False):
         self.hostip = hostip
         self.access_port = access_port
         self.username = username
         self.pkey_fpath = pkey_fpath
+        self.password = password
         self.confirm_secure_host = confirm_secure_host
+        self._start_client()
 
     def _start_client(self):
         self._set_internal_sshclient()
@@ -27,25 +31,32 @@ class AdminSshClient(object):
             self.internal_sshclient.set_missing_host_key_policy(
                                                 paramiko.WarningPolicy())
         else:
-            self.internal_sshclient.load_host_keys()
+            self.internal_sshclient.load_system_host_keys()
 
     def _access_through_ssh(self):
         self.internal_sshclient.connect(
                                     self.hostip,
-                                    self.access_port,
-                                    self.username)
+                                    port=self.access_port,
+                                    username=self.username,
+                                    password=self.password,
+                                    key_filename=self.pkey_fpath)
 
     @property
     def transport(self):
-        if hasattr(self, "_transport"):
+        if not hasattr(self, "_transport"):
             self._transport = self.internal_sshclient.get_transport()
         return self._transport
 
     def scp_put(self, put_flist, remotepath):
+        put_flist = [os.path.normpath(fpath)
+                     for fpath in put_flist]
         with SCPClient(self.transport) as scpc:
-            scpc.put(put_flist, remotepath, recursive=True)
+            scpc.put(put_flist, remotepath,
+                     recursive=True)
 
     def scp_get(self, remote_flist, local_fpath):
+        remote_flist = [os.path.normpath(fpath)
+                        for fpath in remote_flist]
         with SCPClient(self.transport) as scpc:
             scpc.get(
                   remote_flist, local_fpath,
@@ -63,9 +74,9 @@ class AdminSshClient(object):
         if silent:
             pass
         else:
-            sys.stdout.write(stdout)
+            sys.stdout.writelines(stdout)
             sys.stdout.flush()
-            sys.stderr.write(stderr)
+            sys.stderr.writelines(stderr)
             sys.stderr.flush()
 
     def excec_from_file(self, cmd_file):
@@ -100,9 +111,9 @@ class AdminSshClient(object):
         if silent:
             pass
         else:
-            sys.stdout.write(stdout)
+            sys.stdout.writelines(stdout)
             sys.stdout.flush()
-            sys.stderr.write(stderr)
+            sys.stderr.writelines(stderr)
             sys.stderr.flush()
 
     def excec_from_file_act_cwd(self, cmd_file):
