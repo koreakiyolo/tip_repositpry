@@ -1,7 +1,7 @@
 #!/usr/bin/rnv python3
 
 # formal lib
-from argparse import RawTextHelpFormatte
+from argparse import RawTextHelpFormatter
 import argparse
 import os
 # my lib
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     msg = "this program helps "
     parser = argparse.ArgumentParser(
                             description=msg,
-                            formatter_class=RawTextHelpFormatte)
+                            formatter_class=RawTextHelpFormatter)
     parser.add_argument("host_ip", type=str, nargs="?")
     parser.add_argument("--username", type=str, nargs="?", required=True)
     parser.add_argument("--private_fkey", type=fnmstr, nargs="?",
