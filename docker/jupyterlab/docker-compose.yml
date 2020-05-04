@@ -1,0 +1,13 @@
+version: "3"
+services:
+  jupyterlab:
+    build: ./
+    user: "root"
+    ports:
+      - "70:8888"
+    volumes:
+      - "./work/:/home/jovyan/work"
+    environment:
+      GRANT_SUDO: "yes"
+    command:
+      - "jupyter lab"

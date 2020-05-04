@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  jupyterihub:
+    image: jupyterhub/jupyterhub
+    container_name: jupyterhub
+    ports:
+     - "8000:8000"
+    command: jupyterhub --no-ssl

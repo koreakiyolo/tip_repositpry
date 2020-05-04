@@ -1,0 +1,16 @@
+version: '3'
+services:
+  web:
+    image: 'gitlab/gitlab-ce:latest'
+    hostname: localhost
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost:8929'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+    ports:
+      - '8929:8929'
+      - '2224:22'
+    volumes:
+      - /Users/haruyuki/gitlab/config:/etc/gitlab
+      - /Users/haruyuki/gitlab/logs:/var/log/gitlab
+      - /Users/haruyuki/gitlab/data:/var/opt/gitlab
